@@ -6,8 +6,8 @@ int Fsize=50; /* max string length of formulas*/
 int inputs=10;
 
 struct set{
-    char *item;/*first word of non-empty set*/
-    struct set *tail;/*remaining words in the set*/
+  char *item;/*first word of non-empty set*/
+  struct set *tail;/*remaining words in the set*/
 };
 
 struct tableau {
@@ -18,17 +18,18 @@ struct tableau {
 void deepFree(struct tableau *t) {
   if(!t) return;
  // while(t->S) {
-	  if(t->S->item!= NULL)
-	  {
-		  free(t->S->item);
-		  t->S->item=NULL;
-		  if(t->rest!= NULL)
-			  t->rest ->S->item=NULL;
-	  }
-    struct set *tempSet = t->S;
-    t->S = t->S->tail;
-   free(tempSet);
-   tempSet=NULL;
+  if(t->S->item!= NULL)
+  {
+    free(t->S->item);
+    t->S->item=NULL;
+    if(t->rest!= NULL){
+      t->rest->S->item=NULL;
+    }
+  }
+  struct set *tempSet = t->S;
+  t->S = t->S->tail;
+  free(tempSet);
+  tempSet=NULL;
   //}
   struct tableau *tempTableau = t;
   t = t->rest;
@@ -38,77 +39,77 @@ void deepFree(struct tableau *t) {
 }
 
 int parse(char *g){
-    int negation = 0;
-    int leftpar = 0;
-    int parenthesis = 0;               /* checks whether the number of parenthesis is correct*/
-    int binary = 0;                   /* number of binary symbols*/ 
-    int nleft = 0;                     /* number of left parenthesis */
+  int negation = 0;
+  int leftpar = 0;
+  int parenthesis = 0;               /* checks whether the number of parenthesis is correct*/
+  int binary = 0;                   /* number of binary symbols*/ 
+  int nleft = 0;                     /* number of left parenthesis */
                                   /* if number of left parenthesis does not equal 
                                     the number of binary symblols, it is not a formula */
-    if (strlen(g) == 0){
-        return 0;
+  if (strlen(g) == 0){
+    return 0;
+  }
+  if (strlen(g) == 1){
+    if (g[0] == 'p' || g[0] == 'q' || g[0] == 'r'){
+      return 1;
     }
-    if (strlen(g) == 1){
-        if (g[0] == 'p' || g[0] == 'q' || g[0] == 'r'){
-            return 1;
-        }
-        else{
-            return 0;
-        }
+    else{
+      return 0;
     }
-    for (int i = 0; i < strlen(g); i++){
+  }
+  for (int i = 0; i < strlen(g); i++){
     char x = g[i];
     switch (x){
-        case '-':
-            if (leftpar == 0){
-                negation = 1;
-            }
-            break;
-
-        case('p'|| 'q' || 'r'):
-            break;
-
-        case '(':
-            if (negation == 0){
-                leftpar = 1;
-            }
-            parenthesis += 1;
-            nleft += 1;
-            break;
-
-        case ')':
-            parenthesis -= 1;
-            break;
-
-        case('v'):
-            binary += 1;
-            break;
-
-        case('^'):
-            binary += 1;
-            break;
-
-        case('>'):
-            binary += 1;
-            break;
-
-        default:
-            break;
+      case '-':
+        if (leftpar == 0){
+          negation = 1;
         }
+        break;
+
+      case('p'|| 'q' || 'r'):
+        break;
+
+      case '(':
+        if (negation == 0){
+          leftpar = 1;
+        }
+        parenthesis += 1;
+        nleft += 1;
+        break;
+
+      case ')':
+        parenthesis -= 1;
+        break;
+
+      case('v'):
+        binary += 1;
+        break;
+
+      case('^'):
+        binary += 1;
+        break;
+
+      case('>'):
+        binary += 1;
+        break;
+
+      default:
+        break;
     }
-    if (parenthesis > 0){
-        return 0;
-    }
-    if (nleft != binary){
-        return 0;
-    }
-    if (negation == 1){
-        return 2;
-    }
-    if (leftpar == 1){
-        return 3;
-    }
+  }
+  if (parenthesis > 0){
     return 0;
+  }
+  if (nleft != binary){
+    return 0;
+  }
+  if (negation == 1){
+    return 2;
+  }
+  if (leftpar == 1){
+    return 3;
+  }
+  return 0;
 }
 
 void partone(char *fmla, char *dest){
@@ -219,67 +220,67 @@ int expansionRule(char *g){
     int ruleNeg = 0;
     int ruleNleft = 0;      /*numer of left parenthesis*/
     for (int i = 0; i < strlen(g); i++){
-		char x = g[i];
-		switch (x){
-			case '-':
-				if(ruleLeft == 0){
-					if (g[i+1] == '-'){
-						return 2;
-					}
-					ruleNeg = 1;
-				}
-				break;
+      char x = g[i];
+      switch (x){
+        case '-':
+	  if(ruleLeft == 0){
+	    if (g[i+1] == '-'){
+	      return 2;
+	    }
+	    ruleNeg = 1;
+	  }
+	  break;
 
-			case('p'|| 'q' || 'r'):
-				break;
+	case('p'|| 'q' || 'r'):
+	  break;
 
-			case '(':
-				if(ruleNeg == 0){
-					ruleLeft = 1;
-				}
-				ruleNleft += 1;
-				break;
+	case '(':
+	  if(ruleNeg == 0){
+	    ruleLeft = 1;
+	  }
+	  ruleNleft += 1;
+	  break;
 
-			case ')':
-				ruleNleft -= 1;
-				break;
+	case ')':
+	  ruleNleft -= 1;
+	  break;
 
-			case('v'):
-				if (ruleNleft == 1 || ruleNleft == 0){
-					if(ruleNeg == 0){
-						return 1;
-					}
-					else{
-						return 4;
-					}
-				}
-				break;
+	case('v'):
+	  if (ruleNleft == 1 || ruleNleft == 0){
+	    if(ruleNeg == 0){
+	      return 1;
+	    }
+	    else{
+	      return 4;
+	    }
+	  }
+	  break;
 
-			case('^'):
-				if (ruleNleft == 1 || ruleNleft == 0){
-					if(ruleNeg == 0){
-						return 0;
-					}
-					else{
-						return 3;
-					}
-				}
-				break;
+	case('^'):
+	  if (ruleNleft == 1 || ruleNleft == 0){
+	    if(ruleNeg == 0){
+	      return 0;
+	    }
+	    else{
+	      return 3;
+	    }
+	  }
+	  break;
 
-			case('>'):
-				if (ruleNleft == 1 || ruleNleft == 0){
-					if(ruleNeg == 0){
-						return 6;
-					}
-					else{
-						return 5;
-					}
-				}
-				break;
+	case('>'):
+  	  if (ruleNleft == 1 || ruleNleft == 0){
+	    if(ruleNeg == 0){
+	      return 6;
+	    }
+	    else{
+	      return 5;
+	    }
+	  }
+	  break;
 
-			default:
-				break;
-		}
+	default:
+	  break;
+      }
     }
 }
 
@@ -330,53 +331,53 @@ void alpha(struct set *s){
 
 void beta(struct set *set, struct set* head, struct tableau *tab){
     struct tableau* newTableau = (struct tableau *)calloc(1, sizeof(struct tableau));
-	struct set* newSet = (struct set *)calloc(1, sizeof(struct set));
-	newTableau->S = newSet;
-	struct set* currentSet = head; 
+    struct set* newSet = (struct set *)calloc(1, sizeof(struct set));
+    newTableau->S = newSet;
+    struct set* currentSet = head; 
 
-	char *one = (char *)calloc(Fsize, sizeof(char));
+    char *one = (char *)calloc(Fsize, sizeof(char));
     char *two = (char *)calloc(Fsize, sizeof(char));
     partone(set -> item, one);
     parttwo(set -> item, two);
 
-	if(expansionRule(set->item)==3 || expansionRule(set->item)==4 || expansionRule(set->item)==6){
-		char *temp = (char *)calloc(Fsize, sizeof(char));
-		strcat(temp,"-");
-		strcat(temp,one);
-		strcpy(one,temp);
-	}
-	if(expansionRule(set->item)==3 || expansionRule(set->item)==4 || expansionRule(set->item)==5){
-		char *temp = (char *)calloc(Fsize, sizeof(char));
-		strcat(temp,"-");
-		strcat(temp,two);
-		strcpy(two,temp);
-	}
+    if(expansionRule(set->item)==3 || expansionRule(set->item)==4 || expansionRule(set->item)==6){
+	char *temp = (char *)calloc(Fsize, sizeof(char));
+	strcat(temp,"-");
+	strcat(temp,one);
+	strcpy(one,temp);
+    }
+    if(expansionRule(set->item)==3 || expansionRule(set->item)==4 || expansionRule(set->item)==5){
+	char *temp = (char *)calloc(Fsize, sizeof(char));
+	strcat(temp,"-");
+	strcat(temp,two);
+	strcpy(two,temp);
+    }
 
-	if(set->item == currentSet->item){
-		newSet->item = two;
+    if(set->item == currentSet->item){
+	newSet->item = two;
+	newSet->tail = (struct set *)calloc(1, sizeof(struct set));
+	while(currentSet->tail != NULL){
+		newSet = newSet->tail;
+		currentSet = currentSet->tail;
+		newSet->item = currentSet->item;
+	}
+	newSet->tail == NULL;
+    }
+    else{
+	while(currentSet->tail != NULL){
+		newSet->item = currentSet->item;
 		newSet->tail = (struct set *)calloc(1, sizeof(struct set));
-		while(currentSet->tail != NULL){
-			newSet = newSet->tail;
-			currentSet = currentSet->tail;
-			newSet->item = currentSet->item;
+		newSet = newSet->tail;
+		currentSet = currentSet->tail;
+		if(currentSet->tail == NULL){
+			newSet->item = two;
 		}
-		newSet->tail == NULL;
+		newSet->tail = NULL;
 	}
-	else{
-		while(currentSet->tail != NULL){
-			newSet->item = currentSet->item;
-			newSet->tail = (struct set *)calloc(1, sizeof(struct set));
-			newSet = newSet->tail;
-			currentSet = currentSet->tail;
-			if(currentSet->tail == NULL){
-				newSet->item = two;
-			}
-			newSet->tail = NULL;
-		}
-	}
-	set->item = one;
-	newTableau->rest = tab->rest;
-	tab->rest = newTableau;
+    }
+    set->item = one;
+    newTableau->rest = tab->rest;
+    tab->rest = newTableau;
 }
 
 void doubleNegation(struct set *s){
@@ -391,37 +392,37 @@ void complete(struct tableau *t){
     struct tableau *tab =t;
     struct set *set;
 	while (tab->S != NULL){   
-        set = tab -> S;
-		struct set *head = tab->S;
-        while (set->item != NULL){
+          set = tab -> S;
+	  struct set *head = tab->S;
+          while (set->item != NULL){
             if(isExp(set->item)==1){
-				if(set->tail != NULL){
-					set = set->tail;
-					if(isExp(set->item)){
-						break;
-					}
-				}
-				else{
-					break;     //s = t->rest
-				}
-			}
-			switch(expansionRule(set->item)){
-			case 0:case 4:case 5:
-					alpha(set);
-					break;
-			case 1:case 3:case 6:
-					beta(set,head,tab);
-					break;
-				case 2:
-					doubleNegation(set);
-					break;
-			}
-        }
-		if(tab->rest == NULL){
-			break;
-		}
-		tab = tab->rest;
-    }
+	      if(set->tail != NULL){
+	        set = set->tail;
+	        if(isExp(set->item)){
+	          break;
+	        }
+	      }
+	      else{
+	        break;     //s = t->rest
+	      }
+	    }
+	    switch(expansionRule(set->item)){
+	      case 0:case 4:case 5:
+		alpha(set);
+		break;
+	      case 1:case 3:case 6:
+		beta(set,head,tab);
+		break;
+	      case 2:
+		doubleNegation(set);
+		break;
+	    }
+          }
+	  if(tab->rest == NULL){
+	    break;
+	  }
+	  tab = tab->rest;
+      }
 }
 
 bool closed(struct tableau *t){
@@ -495,15 +496,9 @@ int main()
             case(1): fprintf(fpout, "%s is a proposition. \n ", name);break;
             case(2): fprintf(fpout, "%s is a negation.  \n", name);break;
             case(3):
-                strcpy(left,"");
-                strcpy(right,"");
-		        fprintf(fpout, "1--%s is a binary. The first part is %s and the second part is %s  \n", name,left,right);
-                strcpy(left,"");
-                strcpy(right,"");
-				memset(left,0,Fsize);
                 partone(name, left);
-		        parttwo(name, right);
-		        fprintf(fpout, "%s is a binary. The first part is %s and the second part is %s  \n", name,left,right);
+		parttwo(name, right);
+		fprintf(fpout, "%s is a binary. The first part is %s and the second part is %s  \n", name,left,right);
             break;
             default:fprintf(fpout, "What the f***!  ");
         }
@@ -528,7 +523,7 @@ int main()
         }
         else  fprintf(fpout, "I told you, %s is not a formula.\n", name);
 
-		memset(left,0,Fsize);
+	memset(left,0,Fsize);
         memset(right,0,Fsize);
     }
 
